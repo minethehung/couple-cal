@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fff7fb;
+  --foreground: #5b4a55;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-quicksand);
+  --shadow-soft: 0 16px 45px rgba(91, 74, 85, 0.12);
+  --shadow-pink: 0 14px 34px rgba(242, 92, 138, 0.24);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-quicksand), Arial, Helvetica, sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
