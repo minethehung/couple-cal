@@ -82,14 +82,25 @@ export const sampleData: CoupleData = {
   ],
 };
 
+function applyEnvPin(data: CoupleData) {
+  if (!DEFAULT_PIN) return data;
+  return {
+    ...data,
+    settings: {
+      ...data.settings,
+      pin: DEFAULT_PIN,
+    },
+  };
+}
+
 function readData() {
   if (typeof window === "undefined") return sampleData;
   const raw = window.localStorage.getItem(STORAGE_KEY);
-  if (!raw) return sampleData;
+  if (!raw) return applyEnvPin(sampleData);
   try {
-    return JSON.parse(raw) as CoupleData;
+    return applyEnvPin(JSON.parse(raw) as CoupleData);
   } catch {
-    return sampleData;
+    return applyEnvPin(sampleData);
   }
 }
 
@@ -109,7 +120,7 @@ export function useCoupleStore() {
 
       if (isSupabaseConfigured()) {
         try {
-          next = await seedSupabaseData(local);
+          next = applyEnvPin(await seedSupabaseData(local));
           window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
           setSyncStatus("Supabase");
         } catch (error) {
@@ -123,7 +134,7 @@ export function useCoupleStore() {
       if (cancelled) return;
       setData(next);
       setCurrentMemberIdState(window.localStorage.getItem(USER_KEY));
-      setPinUnlocked(window.localStorage.getItem(PIN_KEY) === "yes" || !next.settings.pin);
+      setPinUnlocked(!next.settings.pin || window.localStorage.getItem(PIN_KEY) === next.settings.pin);
       setReady(true);
     }
 
@@ -160,7 +171,7 @@ export function useCoupleStore() {
 
   const unlockPin = () => {
     setPinUnlocked(true);
-    window.localStorage.setItem(PIN_KEY, "yes");
+    window.localStorage.setItem(PIN_KEY, data.settings.pin);
   };
 
   const resetPinUnlock = () => {
