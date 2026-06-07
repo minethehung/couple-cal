@@ -71,12 +71,12 @@ const nav = [
 type Store = ReturnType<typeof useCoupleStore>;
 type DebtSummary = ReturnType<typeof getDebtSummary>;
 
-const emptyEvent = (): EventItem => ({
+const emptyEvent = (date?: Date): EventItem => ({
   id: "",
   title: "",
   note: "",
-  startAt: formatISO(new Date()),
-  endAt: formatISO(new Date()),
+  startAt: formatISO(date || new Date()),
+  endAt: formatISO(date || new Date()),
   allDay: true,
   calendarType: "shared",
   ownerId: null,
@@ -196,7 +196,7 @@ export default function CoupleCalApp({ route }: { route: RouteKey }) {
           {route === "calendar" && (
             <CalendarView
               data={data}
-              onAdd={() => setEventModal(emptyEvent())}
+              onAdd={(date) => setEventModal(emptyEvent(date))}
               onEdit={setEventModal}
             />
           )}
@@ -433,7 +433,7 @@ function Panel({ title, icon, children }: { title: string; icon: string; childre
   );
 }
 
-function CalendarView({ data, onAdd, onEdit }: { data: CoupleData; onAdd: () => void; onEdit: (event: EventItem) => void }) {
+function CalendarView({ data, onAdd, onEdit }: { data: CoupleData; onAdd: (date?: Date) => void; onEdit: (event: EventItem) => void }) {
   const [month, setMonth] = useState(startOfMonth(new Date()));
   const [filter, setFilter] = useState<FilterKey>("all");
   const [selected, setSelected] = useState(startOfDay(new Date()));
@@ -442,7 +442,7 @@ function CalendarView({ data, onAdd, onEdit }: { data: CoupleData; onAdd: () => 
   const selectedEvents = events.filter((event: EventItem) => isSameDay(parseISO(event.startAt), selected));
   return (
     <section className="min-w-0 space-y-5">
-      <Toolbar title="Lịch tháng" action={onAdd} />
+      <Toolbar title="Lịch tháng" action={() => onAdd(selected)} />
       <Panel title={format(month, "MMMM yyyy", { locale: vi })} icon="🌙">
         <div className="mb-4 flex items-center justify-between gap-3">
           <IconButton onClick={() => setMonth(subMonths(month, 1))}><ChevronLeft size={18} /></IconButton>
@@ -477,7 +477,7 @@ function CalendarView({ data, onAdd, onEdit }: { data: CoupleData; onAdd: () => 
       <Panel title={`Ngày ${format(selected, "dd/MM")}`} icon="✨">
         <EventList events={selectedEvents} data={data} onEdit={onEdit} />
       </Panel>
-      <Fab onClick={onAdd} />
+      <Fab onClick={() => onAdd(selected)} />
     </section>
   );
 }
